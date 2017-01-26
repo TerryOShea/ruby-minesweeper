@@ -61,10 +61,25 @@ class Board
     puts rows.join("\n")
   end
 
+  def reveal(pos)
+    self[pos].reveal if valid_pos?(pos)
+  end
+
+  def valid_pos?(pos)
+    return false unless ((pos[0] >= 0) && (pos[0] < GRID_ROWS))
+    (pos[1] >= 0) && (pos[0] < GRID_COLUMNS)
+  end
+
+  def flag(pos)
+    self[pos].flag if valid_pos?(pos)
+  end
+
 end
 
 if __FILE__ == $PROGRAM_NAME
   b = Board.new
   b.populate_bombs
+  b.render
+  b.flag([0, 0])
   b.render
 end

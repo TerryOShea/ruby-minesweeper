@@ -4,7 +4,7 @@ class Tile
 
   def initialize(value)
     @value = value
-    @hidden = false
+    @hidden = true
     @flagged = false
   end
 
