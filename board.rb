@@ -52,10 +52,19 @@ class Board
     @grid[row][col] = value
   end
 
+  def render
+    puts "   #{(0...GRID_COLUMNS).to_a.join(" ")}"
+
+    rows = @grid.map.with_index do |row, i|
+      "#{i} |#{row.map(&:to_s).join("|")}"
+    end
+    puts rows.join("\n")
+  end
+
 end
 
 if __FILE__ == $PROGRAM_NAME
   b = Board.new
   b.populate_bombs
-  puts b.grid.map {|row| row.map(&:to_s).join("")}.join("\n")
+  b.render
 end
