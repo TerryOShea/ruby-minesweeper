@@ -2,14 +2,12 @@ require_relative 'tile'
 
 class Board
   NUM_BOMBS = 10
-  GRID_ROWS = 9
-  GRID_COLUMNS = 9
 
-  attr_accessor :grid
+  attr_accessor :grid, :hit_bomb
   attr_reader :bombs
 
-  def initialize(grid = nil)
-    @grid = Array.new(9) { Array.new(9) { Tile.new(0) } }
+  def initialize(rows, cols)
+    @grid = Array.new(rows) { Array.new(cols) { Tile.new(0) } }
     @hit_bomb = false
   end
 
@@ -38,7 +36,7 @@ class Board
   end
 
   def increment_val(row, col)
-    if row >= 0 && row < GRID_ROWS && col >= 0 && col < GRID_COLUMNS
+    if row >= 0 && row < @grid.length && col >= 0 && col < @grid[0].length
       tile = @grid[row][col]
       tile.value += 1 unless tile.has_bomb?
     end
@@ -54,22 +52,13 @@ class Board
     @grid[row][col] = value
   end
 
-  def render
-    puts "   #{(0...GRID_COLUMNS).to_a.join(" ")}"
-
-    rows = @grid.map.with_index do |row, i|
-      "#{i} |#{row.map(&:to_s).join("|")}|"
-    end
-    puts rows.join("\n")
-  end
-
   def reveal(pos)
     self[pos].reveal if valid_pos?(pos)
   end
 
   def valid_pos?(pos)
-    return false unless ((pos[0] >= 0) && (pos[0] < GRID_ROWS))
-    (pos[1] >= 0) && (pos[1] < GRID_COLUMNS)
+    return false unless ((pos[0] >= 0) && (pos[0] < @grid.length))
+    (pos[1] >= 0) && (pos[1] < @grid[0].length)
   end
 
   def parse_pos(string)
@@ -83,18 +72,6 @@ class Board
     self[pos].flag if valid_pos?(pos)
   end
 
-  def run
-    until @hit_bomb || won?
-      play_turn
-      render
-    end
-    if @hit_bomb
-      puts "You lost :("
-    else
-      puts "You won!"
-    end
-  end
-
   def won?
     @grid.each do |row|
       row.each { |tile| return false unless tile.revealed? || tile.has_bomb? }
@@ -102,32 +79,4 @@ class Board
     true
   end
 
-  def play_turn
-    pos, is_flagged = nil, false
-    until pos
-      puts "What position do you want to reveal? (e.g. 3,4)"
-      response = parse_pos(gets)
-      if response
-        pos, is_flagged = response
-      else
-        puts "Wrong input format"
-      end
-    end
-
-    if is_flagged
-      self[pos].flag
-    else
-      self[pos].reveal
-      @hit_bomb = true if self[pos].has_bomb?
-    end
-  end
-
-end
-
-if __FILE__ == $PROGRAM_NAME
-  b = Board.new
-  b.populate_bombs
-  b.render
-  p b.bombs
-  b.run
 end
