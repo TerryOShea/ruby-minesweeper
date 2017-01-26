@@ -76,10 +76,6 @@ class Board
     self[pos].flag if valid_pos?(pos)
   end
 
-  def unflag(pos)
-    self[pos].unflag if valid_pos?(pos)
-  end
-
   def run
     until @hit_bomb || won?
       play_turn
@@ -104,7 +100,7 @@ class Board
     until pos && valid_pos?(pos)
       puts "What position do you want to reveal? (e.g. 3,4)"
       begin
-        pos = parse_pos(gets)
+        pos, is_flagged = parse_pos(gets)
       rescue
         puts "Invalid position entered (did you use a comma?)"
         puts ""
@@ -112,13 +108,21 @@ class Board
         pos = nil
       end
     end
-    self[pos].reveal
 
-    @hit_bomb = true if self[pos].has_bomb?
+    if is_flagged
+      self[pos].flag
+    else
+      self[pos].reveal
+      @hit_bomb = true if self[pos].has_bomb?
+    end
   end
 
   def parse_pos(string)
-    string.split(",").map(&:to_i)
+    if string[0].downcase == "f"
+      [string[2..-1].split(",").map(&:to_i), true]
+    else
+      [string.split(",").map(&:to_i), false]
+    end
   end
 
 end

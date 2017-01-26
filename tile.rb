@@ -21,11 +21,7 @@ class Tile
   end
 
   def flag
-    @flagged = true if @hidden && !@flagged
-  end
-
-  def unflag
-    @flagged = false if @hidden && @flagged
+    @flagged = !@flagged if @hidden
   end
 
   def to_s
