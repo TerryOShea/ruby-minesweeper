@@ -69,7 +69,14 @@ class Board
 
   def valid_pos?(pos)
     return false unless ((pos[0] >= 0) && (pos[0] < GRID_ROWS))
-    (pos[1] >= 0) && (pos[0] < GRID_COLUMNS)
+    (pos[1] >= 0) && (pos[1] < GRID_COLUMNS)
+  end
+
+  def parse_pos(string)
+    match_obj = /^(f?)\s?(\d+)[, ]+(\d+)$/.match(string)
+    return false unless match_obj
+    return false unless valid_pos?([match_obj[2], match_obj[3]].map(&:to_i))
+    [[match_obj[2], match_obj[3]].map(&:to_i), match_obj[1] == "f"]
   end
 
   def flag(pos)
@@ -96,16 +103,14 @@ class Board
   end
 
   def play_turn
-    pos = nil
-    until pos && valid_pos?(pos)
+    pos, is_flagged = nil, false
+    until pos
       puts "What position do you want to reveal? (e.g. 3,4)"
-      begin
-        pos, is_flagged = parse_pos(gets)
-      rescue
-        puts "Invalid position entered (did you use a comma?)"
-        puts ""
-
-        pos = nil
+      response = parse_pos(gets)
+      if response
+        pos, is_flagged = response
+      else
+        puts "Wrong input format"
       end
     end
 
@@ -114,14 +119,6 @@ class Board
     else
       self[pos].reveal
       @hit_bomb = true if self[pos].has_bomb?
-    end
-  end
-
-  def parse_pos(string)
-    if string[0].downcase == "f"
-      [string[2..-1].split(",").map(&:to_i), true]
-    else
-      [string.split(",").map(&:to_i), false]
     end
   end
 
