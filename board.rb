@@ -6,25 +6,27 @@ class Board
   GRID_COLUMNS = 9
 
   attr_accessor :grid
+  attr_reader :bombs
 
   def initialize(grid = nil)
     @grid = Array.new(9) { Array.new(9) { Tile.new(0) } }
+    @hit_bomb = false
   end
 
   def populate_bombs
-    bombs = []
+    @bombs = []
 
-    until bombs.length == NUM_BOMBS
-      bombs << [(0..8).to_a.sample, (0..8).to_a.sample]
-      bombs.uniq!
+    until @bombs.length == NUM_BOMBS
+      @bombs << [(0..8).to_a.sample, (0..8).to_a.sample]
+      @bombs.uniq!
     end
 
-    bombs.each { |pos| self[pos] = Tile.new("B") }
-    bomb_neighbors(bombs)
+    @bombs.each { |pos| self[pos] = Tile.new("B") }
+    bomb_neighbors
   end
 
-  def bomb_neighbors(bomb_positions)
-    bomb_positions.each do |bomb|
+  def bomb_neighbors
+    @bombs.each do |bomb|
       row, col = bomb
       (-1...2).each do |i|
         increment_val(row-1, col+i)
@@ -56,7 +58,7 @@ class Board
     puts "   #{(0...GRID_COLUMNS).to_a.join(" ")}"
 
     rows = @grid.map.with_index do |row, i|
-      "#{i} |#{row.map(&:to_s).join("|")}"
+      "#{i} |#{row.map(&:to_s).join("|")}|"
     end
     puts rows.join("\n")
   end
@@ -74,12 +76,57 @@ class Board
     self[pos].flag if valid_pos?(pos)
   end
 
+  def unflag(pos)
+    self[pos].unflag if valid_pos?(pos)
+  end
+
+  def run
+    until @hit_bomb || won?
+      play_turn
+      render
+    end
+    if @hit_bomb
+      puts "You lost :("
+    else
+      puts "You won!"
+    end
+  end
+
+  def won?
+    @grid.each do |row|
+      row.each { |tile| return false unless tile.revealed? || tile.has_bomb? }
+    end
+    true
+  end
+
+  def play_turn
+    pos = nil
+    until pos && valid_pos?(pos)
+      puts "What position do you want to reveal? (e.g. 3,4)"
+      begin
+        pos = parse_pos(gets)
+      rescue
+        puts "Invalid position entered (did you use a comma?)"
+        puts ""
+
+        pos = nil
+      end
+    end
+    self[pos].reveal
+
+    @hit_bomb = true if self[pos].has_bomb?
+  end
+
+  def parse_pos(string)
+    string.split(",").map(&:to_i)
+  end
+
 end
 
 if __FILE__ == $PROGRAM_NAME
   b = Board.new
   b.populate_bombs
   b.render
-  b.flag([0, 0])
-  b.render
+  p b.bombs
+  b.run
 end

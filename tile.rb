@@ -12,12 +12,20 @@ class Tile
     @hidden = false
   end
 
+  def revealed?
+    !@hidden
+  end
+
   def has_bomb?
     @value == "B"
   end
 
   def flag
     @flagged = true if @hidden && !@flagged
+  end
+
+  def unflag
+    @flagged = false if @hidden && @flagged
   end
 
   def to_s
