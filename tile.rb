@@ -2,10 +2,11 @@ require 'colorize'
 
 class Tile
 
-  COLORS = {
-    "B" => :light_red,
+  COLORS_REF = {
     1 => :blue,
-    2 => :green
+    2 => :green,
+    3 => :red,
+    4 => :cyan,
   }
 
   attr_accessor :value
@@ -18,14 +19,15 @@ class Tile
 
   def reveal
     @hidden = false
+    @flagged = false
   end
 
   def revealed?
     !@hidden
   end
 
-  def has_bomb?
-    @value == "B"
+  def has_mine?
+    @value == "mine" || @value == "hit"
   end
 
   def flag
@@ -38,12 +40,15 @@ class Tile
 
   def to_s
     return " \u2691 ".encode('utf-8').colorize(:magenta) if @flagged
+    return " \u2620 ".encode('utf-8').colorize(:light_red) if @value == "hit" # a triggered mine
     return " * " if @hidden
+    return " \u2609 ".encode('utf-8').colorize(:light_red) if @value == "mine"
     return "   " if @value == 0
-    if COLORS.key?(@value)
-      " #{@value} ".colorize(COLORS[@value])
+
+    if COLORS_REF.key?(@value)
+      " #{@value} ".colorize(COLORS_REF[@value])
     else
-      " #{@value} ".colorize(:cyan)
+      " #{@value} ".colorize(:yellow) # values 3 and up default to cyan
     end
   end
 

@@ -1,62 +1,41 @@
+require 'set'
 require_relative 'tile'
 
 class Board
-  NUM_BOMBS = 10
 
-  attr_accessor :grid, :hit_bomb
-  attr_reader :bombs
+  attr_accessor :grid
+  # attr_reader :mines
 
-  def initialize(rows, cols)
-    @grid = Array.new(rows) { Array.new(cols) { Tile.new(0) } }
-    @hit_bomb = false
+  def initialize(row_num, col_num, mines_num)
+    @row_num = row_num
+    @col_num = col_num
+    @grid = Array.new(@row_num) { Array.new(@col_num) { Tile.new(0) } }
+    @mines_num = mines_num
   end
 
-  def populate_bombs
-    @bombs = []
+  # adds mines to the board
+  def populate_board
+    mines = Set.new
 
-    until @bombs.length == NUM_BOMBS
-      row = (0...@grid.length).to_a.sample
-      col = (0...@grid[0].length).to_a.sample
-      @bombs << [row, col]
-      @bombs.uniq!
+    until mines.length == @mines_num
+      row = (0...@row_num).to_a.sample
+      col = (0...@col_num).to_a.sample
+      mines.add([row, col])
     end
 
-    @bombs.each { |pos| self[pos] = Tile.new("B") }
-    bomb_neighbors
-  end
-
-  def bomb_neighbors
-    @bombs.each do |bomb|
-      neighbors(bomb).each { |neighbor| increment_val(*neighbor) }
+    # updates each neighbor of a mine
+    mines.each do |mine|
+      self[mine] = Tile.new("mine")
+      neighbors(mine).each { |neighbor| increment_val(neighbor) }
     end
   end
 
-  def increment_val(row, col)
-    if valid_pos?([row, col])
-    # if row >= 0 && row < @grid.length && col >= 0 && col < @grid[0].length
-      tile = @grid[row][col]
-      tile.value += 1 unless tile.has_bomb?
-    end
+  # the value of a tile is based on how many mines it abuts
+  def increment_val(pos)
+    self[pos].value += 1 if valid_pos?(pos) && !self[pos].has_mine?
   end
 
-  def [](pos)
-    row, col = pos
-    @grid[row][col]
-  end
-
-  def []=(pos, value)
-    row, col = pos
-    @grid[row][col] = value
-  end
-
-  def reveal(pos)
-    return if self[pos].revealed? || self[pos].flagged?
-    self[pos].reveal if valid_pos?(pos)
-    if self[pos].value == 0
-      neighbors(pos).each { |neighbor| reveal(neighbor) unless @bombs.include?(neighbor) }
-    end
-  end
-
+  # returns (up to 8) neighbor indices for a given pos
   def neighbors(pos)
     row, col = pos
     neighbors = []
@@ -71,16 +50,28 @@ class Board
     neighbors
   end
 
+  # checks whether a position is actually on the board
   def valid_pos?(pos)
-    return false unless ((pos[0] >= 0) && (pos[0] < @grid.length))
-    (pos[1] >= 0) && (pos[1] < @grid[0].length)
+    return false unless ((pos[0] >= 0) && (pos[0] < @row_num))
+    (pos[1] >= 0) && (pos[1] < @col_num)
   end
 
-  def parse_pos(string)
-    match_obj = /^(f?)\s?(\d+)[, ]+(\d+)$/.match(string)
-    return false unless match_obj
-    return false unless valid_pos?([match_obj[2], match_obj[3]].map(&:to_i))
-    [[match_obj[2], match_obj[3]].map(&:to_i), match_obj[1] == "f"]
+  def [](pos)
+    row, col = pos
+    @grid[row][col]
+  end
+
+  def []=(pos, value)
+    row, col = pos
+    @grid[row][col] = value
+  end
+
+  # reveals tile; if it's not near mines, recursively reveals its neighbors
+  def reveal(pos)
+    return if self[pos].revealed? || self[pos].flagged?
+    puts "is flagged; still here" if self[pos].flagged?
+    self[pos].reveal
+    neighbors(pos).each { |neighbor| reveal(neighbor) } if self[pos].value == 0
   end
 
   def flag(pos)
