@@ -1,3 +1,4 @@
+require 'colorize'
 require_relative 'board'
 
 class MinesweeperGame
@@ -28,7 +29,6 @@ class MinesweeperGame
       row.each { |tile| tile.reveal }
     end
   end
-
 
   def render
     labels = (0...GRID_COLUMNS).map { |n| n.to_s.center(4) }.join("")
@@ -71,6 +71,8 @@ class MinesweeperGame
 end
 
 if __FILE__ == $PROGRAM_NAME
+  #String.colors.each { |color| puts color.to_s.colorize(color) }
+
   g = MinesweeperGame.new
   g.run
 end

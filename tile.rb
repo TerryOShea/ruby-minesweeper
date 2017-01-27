@@ -1,4 +1,12 @@
+require 'colorize'
+
 class Tile
+
+  COLORS = {
+    "B" => :light_red,
+    1 => :blue,
+    2 => :green
+  }
 
   attr_accessor :value
 
@@ -29,9 +37,14 @@ class Tile
   end
 
   def to_s
-    return " \u2691 ".encode('utf-8') if @flagged
+    return " \u2691 ".encode('utf-8').colorize(:magenta) if @flagged
     return " * " if @hidden
-    @value == 0 ? " _ " : " #{@value} "
+    return "   " if @value == 0
+    if COLORS.key?(@value)
+      " #{@value} ".colorize(COLORS[@value])
+    else
+      " #{@value} ".colorize(:cyan)
+    end
   end
 
 end

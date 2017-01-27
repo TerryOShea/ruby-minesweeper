@@ -15,7 +15,9 @@ class Board
     @bombs = []
 
     until @bombs.length == NUM_BOMBS
-      @bombs << [(0...@grid.length).to_a.sample, (0...@grid[0].length).to_a.sample]
+      row = (0...@grid.length).to_a.sample
+      col = (0...@grid[0].length).to_a.sample
+      @bombs << [row, col]
       @bombs.uniq!
     end
 
@@ -30,7 +32,8 @@ class Board
   end
 
   def increment_val(row, col)
-    if row >= 0 && row < @grid.length && col >= 0 && col < @grid[0].length
+    if valid_pos?([row, col])
+    # if row >= 0 && row < @grid.length && col >= 0 && col < @grid[0].length
       tile = @grid[row][col]
       tile.value += 1 unless tile.has_bomb?
     end
@@ -49,7 +52,6 @@ class Board
   def reveal(pos)
     return if self[pos].revealed? || self[pos].flagged?
     self[pos].reveal if valid_pos?(pos)
-    # puts self[pos].value
     if self[pos].value == 0
       neighbors(pos).each { |neighbor| reveal(neighbor) unless @bombs.include?(neighbor) }
     end
