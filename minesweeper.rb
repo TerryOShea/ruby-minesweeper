@@ -1,4 +1,3 @@
-require 'colorize'
 require_relative 'board'
 
 class MinesweeperGame
@@ -11,6 +10,7 @@ class MinesweeperGame
 
   def run
     @board.populate_bombs
+    # take turns until you hit a bomb (lose) or only bombs remain unrevealed (win)
     until @board.hit_bomb || won?
       render
       play_turn
@@ -24,12 +24,14 @@ class MinesweeperGame
     render
   end
 
+  # shows the whole board when the game is over
   def reveal_board
     @board.grid.each do |row|
       row.each { |tile| tile.reveal }
     end
   end
 
+  # prints a visualization of the board with labeled row and column indices
   def render
     labels = (0...GRID_COLUMNS).map { |n| n.to_s.center(4) }.join("")
     puts "    #{labels}"
@@ -45,7 +47,7 @@ class MinesweeperGame
     pos, is_flagged = nil, false
     until pos
       puts "What position do you want to reveal? (e.g. 3,4)"
-      response = @board.parse_pos(gets)
+      response = @board.parse_pos(gets) # makes sure input is in the right format
       if response
         pos, is_flagged = response
       else
@@ -53,6 +55,7 @@ class MinesweeperGame
       end
     end
 
+    # if you want to flag the tile instead of reveal its value
     if is_flagged
       @board[pos].flag
     else
@@ -61,6 +64,7 @@ class MinesweeperGame
     end
   end
 
+  # if the only unrevealed tiles left are bombs, then you've won
   def won?
     @board.grid.each do |row|
       row.each { |tile| return false unless tile.revealed? || tile.has_bomb? }
@@ -71,8 +75,6 @@ class MinesweeperGame
 end
 
 if __FILE__ == $PROGRAM_NAME
-  #String.colors.each { |color| puts color.to_s.colorize(color) }
-
   g = MinesweeperGame.new
   g.run
 end
