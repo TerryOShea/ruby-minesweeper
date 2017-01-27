@@ -23,10 +23,12 @@ class MinesweeperGame
   end
 
   def render
-    puts "   #{(0...GRID_COLUMNS).to_a.join(" ")}"
-
+    labels = (0...GRID_COLUMNS).map { |n| n.to_s.center(4) }.join("")
+    puts "    #{labels}"
+    puts "    #{ "-" * (@board.grid[0].length * 4) }"
     rows = @board.grid.map.with_index do |row, i|
-      "#{i} |#{row.map(&:to_s).join("|")}|"
+      "#{i.to_s.rjust(2)} |#{row.map(&:to_s).join("|")}|\n   #{ "-" * (@board.grid[0].length * 4) }"
+
     end
     puts rows.join("\n")
   end

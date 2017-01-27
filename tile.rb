@@ -25,9 +25,9 @@ class Tile
   end
 
   def to_s
-    return "\u2691".encode('utf-8') if @flagged
-    return "*" if @hidden
-    @value == 0 ? "_" : @value
+    return " \u2691 ".encode('utf-8') if @flagged
+    return " * " if @hidden
+    @value == 0 ? " _ " : " #{@value} "
   end
 
 end

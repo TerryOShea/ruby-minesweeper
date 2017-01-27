@@ -15,7 +15,7 @@ class Board
     @bombs = []
 
     until @bombs.length == NUM_BOMBS
-      @bombs << [(0..8).to_a.sample, (0..8).to_a.sample]
+      @bombs << [(0...@grid.length).to_a.sample, (0...@grid[0].length).to_a.sample]
       @bombs.uniq!
     end
 
