@@ -24,6 +24,10 @@ class Tile
     @flagged = !@flagged if @hidden
   end
 
+  def flagged?
+    @flagged
+  end
+
   def to_s
     return " \u2691 ".encode('utf-8') if @flagged
     return " * " if @hidden

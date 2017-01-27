@@ -47,9 +47,9 @@ class Board
   end
 
   def reveal(pos)
-    return if self[pos].revealed?
+    return if self[pos].revealed? || self[pos].flagged?
     self[pos].reveal if valid_pos?(pos)
-    puts self[pos].value
+    # puts self[pos].value
     if self[pos].value == 0
       neighbors(pos).each { |neighbor| reveal(neighbor) unless @bombs.include?(neighbor) }
     end

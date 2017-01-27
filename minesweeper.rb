@@ -10,17 +10,25 @@ class MinesweeperGame
 
   def run
     @board.populate_bombs
-    render
     until @board.hit_bomb || won?
-      play_turn
       render
+      play_turn
     end
     if @board.hit_bomb
       puts "You lost :("
     else
       puts "You won!"
     end
+    reveal_board
+    render
   end
+
+  def reveal_board
+    @board.grid.each do |row|
+      row.each { |tile| tile.reveal }
+    end
+  end
+
 
   def render
     labels = (0...GRID_COLUMNS).map { |n| n.to_s.center(4) }.join("")
