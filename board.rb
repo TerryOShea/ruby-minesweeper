@@ -4,7 +4,6 @@ require_relative 'tile'
 class Board
 
   attr_accessor :grid
-  # attr_reader :mines
 
   def initialize(row_num, col_num, mines_num)
     @row_num = row_num

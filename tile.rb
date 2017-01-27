@@ -48,7 +48,7 @@ class Tile
     if COLORS_REF.key?(@value)
       " #{@value} ".colorize(COLORS_REF[@value])
     else
-      " #{@value} ".colorize(:yellow) # values 3 and up default to cyan
+      " #{@value} ".colorize(:yellow) # values 3 and up default to yellow
     end
   end
 
