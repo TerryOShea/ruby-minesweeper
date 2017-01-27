@@ -11,7 +11,7 @@ class MinesweeperGame
   def run
     @board.populate_bombs
     render
-    until @board.hit_bomb || @board.won?
+    until @board.hit_bomb || won?
       play_turn
       render
     end
@@ -46,9 +46,16 @@ class MinesweeperGame
     if is_flagged
       @board[pos].flag
     else
-      @board[pos].reveal
+      @board.reveal(pos)
       @board.hit_bomb = true if @board[pos].has_bomb?
     end
+  end
+
+  def won?
+    @board.grid.each do |row|
+      row.each { |tile| return false unless tile.revealed? || tile.has_bomb? }
+    end
+    true
   end
 
 end

@@ -25,13 +25,7 @@ class Board
 
   def bomb_neighbors
     @bombs.each do |bomb|
-      row, col = bomb
-      (-1...2).each do |i|
-        increment_val(row-1, col+i)
-        increment_val(row+1, col+i)
-      end
-      increment_val(row, col-1)
-      increment_val(row, col+1)
+      neighbors(bomb).each { |neighbor| increment_val(*neighbor) }
     end
   end
 
@@ -53,7 +47,26 @@ class Board
   end
 
   def reveal(pos)
+    return if self[pos].revealed?
     self[pos].reveal if valid_pos?(pos)
+    puts self[pos].value
+    if self[pos].value == 0
+      neighbors(pos).each { |neighbor| reveal(neighbor) unless @bombs.include?(neighbor) }
+    end
+  end
+
+  def neighbors(pos)
+    row, col = pos
+    neighbors = []
+
+    (-1...2).each do |i|
+      neighbors << [row-1, col+i] if valid_pos?([row-1, col+i])
+      neighbors << [row+1, col+i] if valid_pos?([row+1, col+i])
+    end
+    neighbors << [row, col-1] if valid_pos?([row, col-1])
+    neighbors << [row, col+1] if valid_pos?([row, col+1])
+
+    neighbors
   end
 
   def valid_pos?(pos)
@@ -70,13 +83,6 @@ class Board
 
   def flag(pos)
     self[pos].flag if valid_pos?(pos)
-  end
-
-  def won?
-    @grid.each do |row|
-      row.each { |tile| return false unless tile.revealed? || tile.has_bomb? }
-    end
-    true
   end
 
 end
